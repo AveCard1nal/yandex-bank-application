@@ -1,20 +1,16 @@
 plugins {
-    id("java")
-}
-
-group = "ru.yandex"
-version = "0.0.1-SNAPSHOT"
-
-repositories {
-    mavenCentral()
+    id("org.springframework.boot") version "3.5.7"
+    id("io.spring.dependency-management")
+    java
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+    implementation("org.projectlombok:lombok")
 
-tasks.test {
-    useJUnitPlatform()
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
