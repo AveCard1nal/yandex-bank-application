@@ -1,0 +1,142 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - bank-net
+
+  discovery-server:
+    build:
+      context: .
+      dockerfile: discovery-server/Dockerfile
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - bank-net
+    depends_on:
+      - postgres
+
+  config-server:
+    build:
+      context: .
+      dockerfile: config-server/Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - bank-net
+    depends_on:
+      - discovery-server
+
+  auth-server:
+    build:
+      context: .
+      dockerfile: auth-server/Dockerfile
+    container_name: auth-server
+    ports:
+      - "9000:9000"
+    networks:
+      - bank-net
+    depends_on:
+      - config-server
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: gateway
+    ports:
+      - "8085:8085"
+    networks:
+      - bank-net
+    depends_on:
+      - discovery-server
+      - config-server
+      - auth-server
+
+  accounts-service:
+    build:
+      context: .
+      dockerfile: accounts-service/Dockerfile
+    container_name: accounts-service
+    ports:
+      - "8081:8081"
+    networks:
+      - bank-net
+    depends_on:
+      - postgres
+      - discovery-server
+      - config-server
+
+  cash-service:
+    build:
+      context: .
+      dockerfile: cash-service/Dockerfile
+    container_name: cash-service
+    ports:
+      - "8082:8082"
+    networks:
+      - bank-net
+    depends_on:
+      - gateway
+      - auth-server
+      - config-server
+
+  transfer-service:
+    build:
+      context: .
+      dockerfile: transfer-service/Dockerfile
+    container_name: transfer-service
+    ports:
+      - "8083:8083"
+    networks:
+      - bank-net
+    depends_on:
+      - gateway
+      - auth-server
+      - config-server
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: notifications-service/Dockerfile
+    container_name: notifications-service
+    ports:
+      - "8084:8084"
+    networks:
+      - bank-net
+    depends_on:
+      - gateway
+      - auth-server
+      - config-server
+
+  front-ui:
+    build:
+      context: .
+      dockerfile: front-ui/Dockerfile
+    container_name: front-ui
+    ports:
+      - "8080:8080"
+    networks:
+      - bank-net
+    depends_on:
+      - gateway
+      - accounts-service
+      - cash-service
+      - transfer-service
+
+volumes:
+  postgres-data:
+
+networks:
+  bank-net:
+    driver: bridge

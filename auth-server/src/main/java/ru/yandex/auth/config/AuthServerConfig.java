@@ -76,9 +76,9 @@ public class AuthServerConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings(@Value("${server.port}") int port) {
+    public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://localhost:" + port)
+                .issuer("http://auth-server:9000")
                 .build();
     }
 
