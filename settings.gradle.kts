@@ -9,5 +9,6 @@ include(
     "accounts-service",
     "cash-service",
     "transfer-service",
-    "notifications-service"
+    "notifications-service",
+    "auth-server"
 )
