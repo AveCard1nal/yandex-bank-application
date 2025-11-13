@@ -14,6 +14,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.3")
 
     implementation(project(":common"))
+    implementation("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

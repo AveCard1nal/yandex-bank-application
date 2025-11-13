@@ -1,5 +1,6 @@
-package ru.yandex.accounts.repo;
+package ru.yandex.accounts.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.yandex.accounts.domain.Balance;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

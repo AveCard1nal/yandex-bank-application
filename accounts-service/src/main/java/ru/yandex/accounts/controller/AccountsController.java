@@ -1,4 +1,4 @@
-package ru.yandex.accounts.web;
+package ru.yandex.accounts.controller;
 
 import ru.yandex.accounts.service.AccountService;
 import ru.yandex.common.dto.AccountCreateRequest;

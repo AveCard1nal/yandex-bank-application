@@ -1,5 +1,6 @@
 package ru.yandex.accounts.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.yandex.accounts.domain.Account;
 import java.util.List;
 import java.util.Optional;

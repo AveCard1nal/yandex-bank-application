@@ -2,8 +2,8 @@ package ru.yandex.accounts.service;
 
 import ru.yandex.accounts.domain.Account;
 import ru.yandex.accounts.domain.Balance;
-import ru.yandex.accounts.repo.AccountRepository;
-import ru.yandex.accounts.repo.BalanceRepository;
+import ru.yandex.accounts.repository.AccountRepository;
+import ru.yandex.accounts.repository.BalanceRepository;
 import ru.yandex.common.dto.AccountCreateRequest;
 import ru.yandex.common.dto.AccountDto;
 import ru.yandex.common.dto.AccountUpdateRequest;
