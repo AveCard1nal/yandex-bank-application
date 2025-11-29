@@ -1,46 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "accounts-service.fullname" . }}
+  name: { { include "accounts-service.fullname" . } }
   labels:
-    app.kubernetes.io/name: {{ include "accounts-service.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: { { include "accounts-service.name" . } }
+    app.kubernetes.io/instance: { { .Release.Name } }
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: { { .Values.replicaCount } }
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "accounts-service.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: { { include "accounts-service.name" . } }
+      app.kubernetes.io/instance: { { .Release.Name } }
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "accounts-service.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: { { include "accounts-service.name" . } }
+        app.kubernetes.io/instance: { { .Release.Name } }
     spec:
       containers:
-        - name: {{ include "accounts-service.name" . }}
+        - name: { { include "accounts-service.name" . } }
           image: "{{ printf "%s/%s" .Values.global.imageRegistry "accounts-service" }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: { { .Values.global.imagePullPolicy | default "IfNotPresent" } }
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: { { .Values.service.port } }
+          envFrom:
+            - configMapRef:
+                name: { { include "accounts-service.fullname" . } }
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: {{ .Values.env.springProfile | quote }}
             - name: SPRING_DATASOURCE_URL
-              value: {{ printf "jdbc:postgresql://%s:%d/%s" .Values.db.host .Values.db.port .Values.db.database | quote }}
+              value: { { printf "jdbc:postgresql://%s:%d/%s" .Values.db.host .Values.db.port .Values.db.database | quote } }
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.passwordSecretName }}
+                  name: { { .Values.db.passwordSecretName } }
                   key: username
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.passwordSecretName }}
-                  key: {{ .Values.db.passwordSecretKey }}
+                  name: { { .Values.db.passwordSecretName } }
+                  key: { { .Values.db.passwordSecretKey } }
           resources:
-            {{- if .Values.resources }}
-              {{- toYaml .Values.resources | nindent 12 }}
-              {{- else if .Values.global.resources }}
-              {{- toYaml .Values.global.resources | nindent 12 }}
-              {{- end }}
+            { { - if .Values.resources } }
+              { { - toYaml .Values.resources | nindent 12 } }
+              { { - else if .Values.global.resources } }
+              { { - toYaml .Values.global.resources | nindent 12 } }
+              { { - end } }
