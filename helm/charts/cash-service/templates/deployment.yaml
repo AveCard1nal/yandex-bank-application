@@ -23,12 +23,12 @@ spec:
           imagePullPolicy: {{ .Values.global.imagePullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.service.port }}
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: {{ .Values.env.springProfile | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "cash-service.fullname" . }}
           resources:
             {{- if .Values.resources }}
-              {{- toYaml .Values.resources | nindent 12 }}
-              {{- else if .Values.global.resources }}
-              {{- toYaml .Values.global.resources | nindent 12 }}
-              {{- end }}
+            {{- toYaml .Values.resources | nindent 12 }}
+            {{- else if .Values.global.resources }}
+            {{- toYaml .Values.global.resources | nindent 12 }}
+            {{- end }}
