@@ -1,0 +1,14 @@
+image:
+  repository: "postgres"
+  tag: "16"
+  pullPolicy: IfNotPresent
+
+storage:
+  size: 1Gi
+
+auth:
+  username: "accounts_user"
+  password: "changeme"
+  database: "accounts"
+
+resources: {}

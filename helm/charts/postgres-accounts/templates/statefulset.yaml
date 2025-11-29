@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "postgres-accounts.fullname" . }}
+spec:
+  serviceName: {{ include "postgres-accounts.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "postgres-accounts.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "postgres-accounts.name" . }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.auth.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.auth.password | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- if .Values.resources }}
+              {{- toYaml .Values.resources | nindent 12 }}
+              {{- else if .Values.global.resources }}
+              {{- toYaml .Values.global.resources | nindent 12 }}
+              {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.storage.size }}
