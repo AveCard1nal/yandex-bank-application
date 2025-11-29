@@ -1,0 +1,140 @@
+global:
+  imageRegistry: "registry.ru.yandex/bank"
+  imagePullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+# --- accounts-service ---
+
+accounts-service:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8081
+
+  env:
+    springProfile: "k8s"
+
+  db:
+    host: "postgres-accounts"
+    port: 5432
+    database: "accounts"
+
+    username: "accounts_user"
+    passwordSecretName: "accounts-db-secret"
+    passwordSecretKey: "password"
+
+# --- cash-service ---
+
+cash-service:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8082   # EXPOSE 8082
+
+  env:
+    springProfile: "k8s"
+
+# --- transfer-service ---
+
+transfer-service:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8083   # EXPOSE 8083
+
+  env:
+    springProfile: "k8s"
+
+# --- notifications-service ---
+
+notifications-service:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8084   # EXPOSE 8084
+
+  env:
+    springProfile: "k8s"
+
+# --- front-ui ---
+
+front-ui:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 8080   # EXPOSE 8080
+
+  env:
+    springProfile: "k8s"
+
+# --- auth-server (OAuth2) ---
+
+auth-server:
+  enabled: true
+
+  replicaCount: 1
+
+  image:
+    tag: "latest"
+
+  service:
+    type: ClusterIP
+    port: 9000   # EXPOSE 9000
+
+  env:
+    springProfile: "k8s"
+
+# --- postgres для accounts-service ---
+
+postgres-accounts:
+  enabled: true
+
+  image:
+    repository: "postgres"
+    tag: "16"
+    pullPolicy: IfNotPresent
+
+  storage:
+    size: 1Gi
+
+  auth:
+    username: "accounts_user"
+    password: "change"
+    database: "accounts"

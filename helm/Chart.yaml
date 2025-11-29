@@ -1,0 +1,29 @@
+apiVersion: v2
+name: bank-app
+description: Umbrella chart for Yandex Bank microservices
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+
+dependencies:
+  - name: accounts-service
+    version: 0.1.0
+    repository: "file://./charts/accounts-service"
+  - name: cash-service
+    version: 0.1.0
+    repository: "file://./charts/cash-service"
+  - name: transfer-service
+    version: 0.1.0
+    repository: "file://./charts/transfer-service"
+  - name: notifications-service
+    version: 0.1.0
+    repository: "file://./charts/notifications-service"
+  - name: front-ui
+    version: 0.1.0
+    repository: "file://./charts/front-ui"
+  - name: auth-server
+    version: 0.1.0
+    repository: "file://./charts/auth-server"
+  - name: postgres-accounts
+    version: 0.1.0
+    repository: "file://./charts/postgres-accounts"
