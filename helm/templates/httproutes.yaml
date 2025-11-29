@@ -1,0 +1,89 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: bank-front-route
+spec:
+  parentRefs:
+    - name: bank-gateway
+  hostnames:
+    - bank.ru.yandex
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "front-ui.fullname" (index .Subcharts "front-ui") }}
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: bank-accounts-route
+spec:
+  parentRefs:
+    - name: bank-gateway
+  hostnames:
+    - bank.ru.yandex
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/accounts
+      backendRefs:
+        - name: {{ include "accounts-service.fullname" (index .Subcharts "accounts-service") }}
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: bank-cash-route
+spec:
+  parentRefs:
+    - name: bank-gateway
+  hostnames:
+    - bank.ru.yandex
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/cash
+      backendRefs:
+        - name: {{ include "cash-service.fullname" (index .Subcharts "cash-service") }}
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: bank-transfer-route
+spec:
+  parentRefs:
+    - name: bank-gateway
+  hostnames:
+    - bank.ru.yandex
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/transfers
+      backendRefs:
+        - name: {{ include "transfer-service.fullname" (index .Subcharts "transfer-service") }}
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: bank-notifications-route
+spec:
+  parentRefs:
+    - name: bank-gateway
+  hostnames:
+    - bank.ru.yandex
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/notifications
+      backendRefs:
+        - name: {{ include "notifications-service.fullname" (index .Subcharts "notifications-service") }}
+          port: 80
