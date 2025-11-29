@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "front-ui.fullname" . }}-test"
+  labels:
+    app.kubernetes.io/name: {{ include "front-ui.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:8.10.1
+      args: ["curl", "-f", "http://{{ include "front-ui.fullname" . }}:80/actuator/health"]
+             restartPolicy: Never
