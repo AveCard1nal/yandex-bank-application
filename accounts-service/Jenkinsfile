@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_NAME = "accounts-service"
+        REGISTRY = "registry.ru.yandex/bank"
+        IMAGE = "${REGISTRY}/${SERVICE_NAME}"
+        DEV_NAMESPACE = "dev"
+        PROD_NAMESPACE = "prod"
+        HELM_RELEASE_DEV = "bank-app-dev"
+        HELM_RELEASE_PROD = "bank-app-prod"
+    }
+
+    stages {
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage("Build and Test") {
+            steps {
+                sh "./gradlew :accounts-service:clean :accounts-service:test :accounts-service:bootJar"
+            }
+        }
+
+        stage("Build Image") {
+            steps {
+                script {
+                    env.IMAGE_TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                }
+                sh """
+                  docker build -t ${IMAGE}:${IMAGE_TAG} -f accounts-service/Dockerfile .
+                """
+            }
+        }
+
+        stage("Push Image") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "docker-registry-creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                    sh """
+                      echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin ${REGISTRY}
+                      docker push ${IMAGE}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage("Deploy to Dev") {
+            when {
+                branch "main"
+            }
+            steps {
+                sh """
+                  helm upgrade --install ${HELM_RELEASE_DEV} helm \
+                    --namespace ${DEV_NAMESPACE} --create-namespace \
+                    --set accounts-service.image.tag=${IMAGE_TAG}
+                """
+                sh """
+                  helm test ${HELM_RELEASE_DEV} --namespace ${DEV_NAMESPACE}
+                """
+            }
+        }
+
+        stage("Deploy to Prod") {
+            when {
+                branch "main"
+            }
+            steps {
+                script {
+                    input message: "Deploy accounts-service to PROD?", ok: "Deploy"
+                }
+                sh """
+                  helm upgrade --install ${HELM_RELEASE_PROD} helm \
+                    --namespace ${PROD_NAMESPACE} --create-namespace \
+                    --set accounts-service.image.tag=${IMAGE_TAG}
+                """
+            }
+        }
+    }
+}
