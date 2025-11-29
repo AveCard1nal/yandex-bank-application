@@ -11,11 +11,3 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
-
-  config:
-    import: optional:configserver:http://config-server:8888
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
