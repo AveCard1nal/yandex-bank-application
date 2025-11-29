@@ -10,8 +10,6 @@ global:
       cpu: "500m"
       memory: "512Mi"
 
-# --- accounts-service ---
-
 accounts-service:
   enabled: true
 
@@ -36,8 +34,6 @@ accounts-service:
     passwordSecretName: "accounts-db-secret"
     passwordSecretKey: "password"
 
-# --- cash-service ---
-
 cash-service:
   enabled: true
 
@@ -52,8 +48,6 @@ cash-service:
 
   env:
     springProfile: "k8s"
-
-# --- transfer-service ---
 
 transfer-service:
   enabled: true
@@ -70,7 +64,6 @@ transfer-service:
   env:
     springProfile: "k8s"
 
-# --- notifications-service ---
 
 notifications-service:
   enabled: true
@@ -87,7 +80,6 @@ notifications-service:
   env:
     springProfile: "k8s"
 
-# --- front-ui ---
 
 front-ui:
   enabled: true
@@ -104,8 +96,6 @@ front-ui:
   env:
     springProfile: "k8s"
 
-# --- auth-server (OAuth2) ---
-
 auth-server:
   enabled: true
 
@@ -121,7 +111,6 @@ auth-server:
   env:
     springProfile: "k8s"
 
-# --- postgres для accounts-service ---
 
 postgres-accounts:
   enabled: true
@@ -136,5 +125,5 @@ postgres-accounts:
 
   auth:
     username: "accounts_user"
-    password: "change"
+    password: "changeme"
     database: "accounts"
