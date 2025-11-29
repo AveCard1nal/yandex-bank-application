@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "accounts-service.fullname" . }}-test"
+  labels:
+    app.kubernetes.io/name: {{ include "accounts-service.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:8.10.1
+      args: ["curl", "-f", "http://{{ include "accounts-service.fullname" . }}:80/actuator/health"]
+             restartPolicy: Never

@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8081
+
+env:
+  springProfile: "k8s"
+
+db:
+  host: "postgres-accounts"
+  port: 5432
+  database: "accounts"
+  username: "accounts_user"
+  passwordSecretName: "accounts-db-secret"
+  passwordSecretKey: "password"
+
+resources: {}
