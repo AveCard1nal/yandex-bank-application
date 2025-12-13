@@ -1,3 +1,9 @@
 spring:
   application:
     name: notifications-service
+
+app:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:bank-kafka.kafka.svc.cluster.local:9092}
+    notifications-topic: ${KAFKA_NOTIFICATIONS_TOPIC:bank.notifications}
+    group-id: ${KAFKA_NOTIFICATIONS_GROUP_ID:notifications-service}
