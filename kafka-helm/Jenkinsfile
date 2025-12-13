@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    environment {
+        KAFKA_NAMESPACE = "kafka"
+        KAFKA_RELEASE = "bank-kafka"
+        KAFKA_CHART_DIR = "kafka-helm"
+    }
+
+    stages {
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage("Helm Deps") {
+            steps {
+                sh """
+                  helm dependency update ${KAFKA_CHART_DIR}
+                """
+            }
+        }
+
+        stage("Deploy Kafka") {
+            when {
+                branch "main"
+            }
+            steps {
+                sh """
+                  helm upgrade --install ${KAFKA_RELEASE} ${KAFKA_CHART_DIR} \
+                    --namespace ${KAFKA_NAMESPACE} --create-namespace
+                """
+            }
+        }
+    }
+}
