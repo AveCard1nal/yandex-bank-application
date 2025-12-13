@@ -4,3 +4,5 @@ metadata:
   name: {{ include "transfer-service.fullname" . }}
 data:
   SPRING_PROFILES_ACTIVE: {{ .Values.env.springProfile | quote }}
+  KAFKA_BOOTSTRAP_SERVERS: "bank-kafka.kafka.svc.cluster.local:9092"
+  KAFKA_NOTIFICATIONS_TOPIC: "bank.notifications"

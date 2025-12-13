@@ -3,13 +3,16 @@ kind: Pod
 metadata:
   name: "{{ include "notifications-service.fullname" . }}-test"
   labels:
-    app.kubernetes.io/name: {{ include "notifications-service.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{ include "notifications-service.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
+  restartPolicy: Never
   containers:
-    - name: curl
-      image: curlimages/curl:8.10.1
-      args: ["curl", "-f", "http://{{ include "notifications-service.fullname" . }}:80/actuator/health"]
-             restartPolicy: Never
+    - name: kubectl
+      image: bitnami/kubectl:latest
+      command:
+        - sh
+        - -c
+        - |
+          kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "notifications-service.fullname" . }} --timeout=120s
