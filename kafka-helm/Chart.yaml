@@ -1,0 +1,10 @@
+apiVersion: v2
+name: bank-kafka
+description: Apache Kafka platform for Bank microservices
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: kafka
+    version: 31.0.0
+    repository: https://charts.bitnami.com/bitnami

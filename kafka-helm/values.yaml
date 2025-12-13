@@ -1,0 +1,32 @@
+kafka:
+  kraft:
+    enabled: true
+
+  controller:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 1Gi
+
+  broker:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 1Gi
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+
+  provisioning:
+    enabled: true
+    numPartitions: 3
+    replicationFactor: 2
+    topics:
+      - name: bank.notifications
+        partitions: 3
+        replicationFactor: 2
