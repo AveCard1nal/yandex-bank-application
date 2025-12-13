@@ -18,10 +18,6 @@ spring:
           uri: lb://transfer-service
           predicates:
             - Path=/api/transfers/**
-        - id: notifications-service
-          uri: lb://notifications-service
-          predicates:
-            - Path=/api/notifications/**
       server:
         webflux:
           discovery:
