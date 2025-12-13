@@ -8,6 +8,8 @@ pipeline {
         PROD_NAMESPACE = "prod"
         HELM_RELEASE_DEV = "bank-app-dev"
         HELM_RELEASE_PROD = "bank-app-prod"
+        KAFKA_NAMESPACE = "kafka"
+        KAFKA_RELEASE = "bank-kafka"
     }
 
     stages {
@@ -46,6 +48,19 @@ pipeline {
                       done
                     """
                 }
+            }
+        }
+
+        stage("Deploy Kafka") {
+            when {
+                branch "main"
+            }
+            steps {
+                sh """
+                  helm dependency update kafka-helm
+                  helm upgrade --install ${KAFKA_RELEASE} kafka-helm \
+                    --namespace ${KAFKA_NAMESPACE} --create-namespace
+                """
             }
         }
 
