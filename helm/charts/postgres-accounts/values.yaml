@@ -8,7 +8,8 @@ storage:
 
 auth:
   username: "accounts_user"
-  password: "changeme"
   database: "accounts"
+  existingSecretName: "accounts-db-secret"
+
 
 resources: {}
