@@ -15,7 +15,6 @@ db:
   port: 5432
   database: "accounts"
   username: "accounts_user"
-  password: "changeme"
   passwordSecretName: "accounts-db-secret"
   passwordSecretKey: "password"
 
