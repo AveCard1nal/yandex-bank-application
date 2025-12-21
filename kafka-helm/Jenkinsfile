@@ -5,6 +5,7 @@ pipeline {
         KAFKA_NAMESPACE = "kafka"
         KAFKA_RELEASE = "bank-kafka"
         KAFKA_CHART_DIR = "kafka-helm"
+        OBS_COMPONENTS = "zipkin prometheus grafana elk"
     }
 
     stages {
@@ -14,23 +15,33 @@ pipeline {
             }
         }
 
-        stage("Helm Deps") {
-            steps {
-                sh """
-                  helm dependency update ${KAFKA_CHART_DIR}
-                """
-            }
-        }
-
         stage("Deploy Kafka") {
             when {
                 branch "main"
             }
             steps {
                 sh """
+                  helm dependency update ${KAFKA_CHART_DIR}
                   helm upgrade --install ${KAFKA_RELEASE} ${KAFKA_CHART_DIR} \
                     --namespace ${KAFKA_NAMESPACE} --create-namespace
                 """
+            }
+        }
+
+        stage("Deploy Observability") {
+            when {
+                branch "main"
+            }
+            steps {
+                script {
+                    for (comp in OBS_COMPONENTS.split(" ")) {
+                        sh """
+                          helm dependency update ${comp}
+                          helm upgrade --install bank-${comp} ${comp} \
+                            --namespace ${comp} --create-namespace
+                        """
+                    }
+                }
             }
         }
     }
