@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zipkin.fullname" . }}
+  labels:
+    {{- include "zipkin.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "zipkin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "zipkin.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9411
+              protocol: TCP
+          env:
+            - name: STORAGE_TYPE
+              value: {{ .Values.environment.STORAGE_TYPE | quote }}
+            - name: JAVA_OPTS
+              value: {{ .Values.environment.JAVA_OPTS | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
