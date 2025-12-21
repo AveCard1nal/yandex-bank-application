@@ -1,0 +1,64 @@
+grafana:
+  persistence:
+    enabled: false
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://bank-prometheus-server.prometheus.svc.cluster.local
+          access: proxy
+          isDefault: true
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  dashboards:
+    default:
+      spring-boot:
+        gnetId: 11378
+        revision: 2
+        datasource: Prometheus
+      jvm:
+        gnetId: 4701
+        revision: 1
+        datasource: Prometheus
+      business-metrics:
+        json: |
+          {
+            "title": "Business Metrics",
+            "panels": [
+              {
+                "title": "Login Success/Failure",
+                "type": "graph",
+                "targets": [
+                  { "expr": "rate(login_success_total[5m])", "legendFormat": "Success {{login}}" },
+                  { "expr": "rate(login_failure_total[5m])", "legendFormat": "Failure {{login}}" }
+                ]
+              },
+              {
+                "title": "Transfer Failures",
+                "type": "graph",
+                "targets": [
+                  { "expr": "rate(transfer_failure_total[5m])", "legendFormat": "From {{from}} To {{to}}" }
+                ]
+              },
+              {
+                "title": "Notification Failures",
+                "type": "graph",
+                "targets": [
+                  { "expr": "rate(notification_failure_total[5m])", "legendFormat": "{{login}}" }
+                ]
+              }
+            ]
+          }
