@@ -6,3 +6,24 @@ spring:
     name: front-ui
   thymeleaf:
     cache: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  tracing:
+    sampling:
+      probability: 1.0
+  observations:
+    key-values:
+      env: ${APP_ENV:unknown}
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL:http://bank-zipkin.zipkin.svc.cluster.local:9411/api/v2/spans}
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
