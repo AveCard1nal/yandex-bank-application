@@ -12,6 +12,9 @@
 - Настроить развёртывание приложения в Kubernetes с помощью Helm.
 - Настроить автоматическое развёртывание через Jenkins (CI/CD).
 - Добавить Apache Kafka и перевести отправку уведомлений в notifications-service на обмен сообщениями через Kafka (без REST).
+- Интегрировать Zipkin для трассировки запросов.
+- Интегрировать Prometheus и Grafana для мониторинга и алертинга.
+- Интегрировать ELK-стек для сбора и анализа логов через Kafka.
 
 ## Архитектура проекта
 
@@ -25,19 +28,30 @@
 - auth-server — OAuth2 Authorization Server
 - common — общие DTO (Kafka события)
 
+### Инфраструктура (Observability)
+
+- Zipkin — распределённая трассировка (Micrometer Tracing)
+- Prometheus — сбор метрик (Micrometer Prometheus)
+- Grafana — визуализация метрик и дашборды
+- ELK Stack (Elasticsearch, Logstash, Kibana) — сбор логов из Kafka topic `logs`
+
 ### В Kubernetes
 
 - Service Discovery через Kubernetes Service + DNS
 - Внешний трафик через Gateway API
 - Конфигурация через ConfigMap и Secret
 - Apache Kafka развёрнут через Helm в namespace `kafka`
+- Zipkin, Prometheus, Grafana, ELK развёрнуты в соответствующих namespace
 
 ## Основные взаимодействия
 
 - cash-service и transfer-service вызывают accounts-service по HTTP
 - cash-service и transfer-service публикуют события в Kafka
 - notifications-service читает события из Kafka topic `bank.notifications`
-- Стратегия доставки: at-least-once
+- Все микросервисы отправляют логи в Kafka topic `logs`
+- Logstash читает логи из Kafka и сохраняет в Elasticsearch
+- Трейсы отправляются напрямую в Zipkin (HTTP)
+- Prometheus собирает метрики через `/actuator/prometheus`
 
 ## Технологии
 
@@ -54,20 +68,18 @@
 
 ## Развёртывание в Kubernetes
 
-### Развёртывание Kafka
+### Развёртывание Kafka и Observability (Zipkin, Prometheus, Grafana, ELK)
 
 ```bash
 helm dependency update kafka-helm
-helm upgrade --install bank-kafka kafka-helm   --namespace kafka --create-namespace
-```
+helm upgrade --install bank-kafka kafka-helm --namespace kafka --create-namespace
 
-В процессе установки автоматически создаётся topic:
-
+# Инфраструктура мониторинга
+for comp in zipkin prometheus grafana elk; do
+  helm dependency update $comp
+  helm upgrade --install bank-$comp $comp --namespace $comp --create-namespace
+done
 ```
-bank.notifications
-```
-
-Данные Kafka сохраняются в PersistentVolume.
 
 ### Развёртывание приложения
 

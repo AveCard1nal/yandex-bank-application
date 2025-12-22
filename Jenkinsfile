@@ -51,7 +51,7 @@ pipeline {
             }
         }
 
-        stage("Deploy Kafka") {
+        stage("Deploy Infrastructure") {
             when {
                 branch "main"
             }
@@ -61,6 +61,14 @@ pipeline {
                   helm upgrade --install ${KAFKA_RELEASE} kafka-helm \
                     --namespace ${KAFKA_NAMESPACE} --create-namespace
                 """
+                script {
+                    def components = ['zipkin', 'prometheus', 'grafana', 'elk']
+                    for (comp in components) {
+                        sh "helm dependency update ${comp}"
+                        sh "helm upgrade --install bank-${comp} ${comp} \
+                            --namespace ${comp} --create-namespace"
+                    }
+                }
             }
         }
 
@@ -72,6 +80,7 @@ pipeline {
                 sh """
                   helm upgrade --install ${HELM_RELEASE_DEV} helm \
                     --namespace ${DEV_NAMESPACE} --create-namespace \
+                    --set global.envName=dev \
                     --set accounts-service.image.tag=${IMAGE_TAG} \
                     --set cash-service.image.tag=${IMAGE_TAG} \
                     --set transfer-service.image.tag=${IMAGE_TAG} \
@@ -96,6 +105,7 @@ pipeline {
                 sh """
                   helm upgrade --install ${HELM_RELEASE_PROD} helm \
                     --namespace ${PROD_NAMESPACE} --create-namespace \
+                    --set global.envName=prod \
                     --set accounts-service.image.tag=${IMAGE_TAG} \
                     --set cash-service.image.tag=${IMAGE_TAG} \
                     --set transfer-service.image.tag=${IMAGE_TAG} \
