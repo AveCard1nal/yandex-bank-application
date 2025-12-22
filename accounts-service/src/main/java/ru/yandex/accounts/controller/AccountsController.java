@@ -1,5 +1,8 @@
 package ru.yandex.accounts.controller;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.accounts.service.AccountService;
 import ru.yandex.common.dto.AccountCreateRequest;
 import ru.yandex.common.dto.AccountDto;
@@ -14,24 +17,52 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/accounts")
+@Slf4j
 public class AccountsController {
 
     private final AccountService service;
+    private final MeterRegistry meterRegistry;
 
-    public AccountsController(AccountService service) {
+    public AccountsController(AccountService service, MeterRegistry meterRegistry) {
         this.service = service;
+        this.meterRegistry = meterRegistry;
     }
 
     @PostMapping("/signup")
     public AccountDto signup(@RequestBody AccountCreateRequest request) {
+        log.info("Signup request for login: {}", request.login());
+        log.debug("Signup details: {}", request);
         return service.signup(request);
     }
 
     @PostMapping("/auth")
     public void auth(@RequestBody Map<String, String> body) {
-        boolean ok = service.auth(body.get("login"), body.get("password"));
-        if (!ok) {
-            throw new RuntimeException("bad_credentials");
+        String login = body.get("login");
+        log.info("Auth request for login: {}", login);
+        try {
+            boolean ok = service.auth(login, body.get("password"));
+            if (!ok) {
+                log.warn("Auth failed for login: {}", login);
+                Counter.builder("login.failure")
+                        .tag("login", login)
+                        .register(meterRegistry)
+                        .increment();
+                throw new RuntimeException("bad_credentials");
+            }
+            log.info("Auth success for login: {}", login);
+            Counter.builder("login.success")
+                    .tag("login", login)
+                    .register(meterRegistry)
+                    .increment();
+        } catch (Exception e) {
+            log.error("Error during auth for login: {}", login, e);
+            if (!"bad_credentials".equals(e.getMessage())) {
+                Counter.builder("login.failure")
+                        .tag("login", login)
+                        .register(meterRegistry)
+                        .increment();
+            }
+            throw e;
         }
     }
 
