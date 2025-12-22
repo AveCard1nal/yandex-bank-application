@@ -1,6 +1,7 @@
 global:
   imageRegistry: "registry.ru.yandex/bank"
   imagePullPolicy: IfNotPresent
+  envName: "dev"
 
   resources:
     requests:

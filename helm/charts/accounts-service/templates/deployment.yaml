@@ -13,6 +13,10 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: {{ .Values.service.port | quote }}
       labels:
         app.kubernetes.io/name: {{ include "accounts-service.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -27,6 +31,8 @@ spec:
             - configMapRef:
                 name: {{ include "accounts-service.fullname" . }}
           env:
+            - name: APP_ENV
+              value: {{ .Values.global.envName | default "unknown" | quote }}
             - name: SPRING_DATASOURCE_URL
               value: {{ printf "jdbc:postgresql://%s:%d/%s" .Values.db.host .Values.db.port .Values.db.database | quote }}
             - name: SPRING_DATASOURCE_USERNAME

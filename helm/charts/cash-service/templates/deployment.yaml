@@ -13,6 +13,10 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: {{ .Values.service.port | quote }}
       labels:
         app.kubernetes.io/name: {{ include "cash-service.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -26,6 +30,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "cash-service.fullname" . }}
+          env:
+            - name: APP_ENV
+              value: {{ .Values.global.envName | default "unknown" | quote }}
           resources:
             {{- if .Values.resources }}
             {{- toYaml .Values.resources | nindent 12 }}
